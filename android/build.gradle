@@ -12,13 +12,7 @@ buildscript {
         // in the individual module build.gradle files
     }
 }
-project(':react-native-fbsdk') {
-  configurations.all {
-    resolutionStrategy {
-      force 'com.facebook.android:facebook-android-sdk:4.28.0'
-    }
-  }
-}
+
 
 allprojects {
     repositories {
@@ -30,7 +24,7 @@ allprojects {
             }
         configurations.all {
             resolutionStrategy {
-              force 'com.facebook.android:facebook-android-sdk:4.28.0'
+              force 'com.facebook.android:facebook-android-sdk:4.+'
             }
           }
         maven {

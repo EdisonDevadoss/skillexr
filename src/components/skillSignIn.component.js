@@ -16,10 +16,10 @@ import {
 } from "native-base";
 import { Image, StyleSheet, View } from "react-native";
 import * as firebase from "firebase";
-import { SocialIcon } from "react-native-elements";
-const FBSDK = require("react-native-fbsdk");
 
-const { LoginButton, AccessToken, LoginManager } = FBSDK;
+import { SocialIcon } from "react-native-elements";
+import { GoogleSignin } from "react-native-google-signin";
+import FBSDK, { LoginManager, AccessToken } from "react-native-fbsdk";
 
 export default class SkillSignIn extends Component {
   constructor(props) {
@@ -57,21 +57,61 @@ export default class SkillSignIn extends Component {
       });
   };
   facebookSignIn = () => {
-    LoginManager.logInWithReadPermissions(["public_profile"]).then(
-      function(result) {
+    LoginManager.logInWithReadPermissions(["public_profile"])
+      .then(result => {
         if (result.isCancelled) {
-          alert("Login cancelled");
+          console.log("Login was cancelled");
         } else {
-          alert(
-            "Login success with permissions: " +
-              result.grantedPermissions.toString()
+          console.log(
+            "Login was success" + result.grantedPermissions.toString()
           );
+          AccessToken.getCurrentAccessToken().then(accessTokenData => {
+            const credential = firebase.auth
+              .FacebookAuthProvider()
+              .credential(accessTokenData.accessToken);
+            firebase
+              .auth()
+              .signInWithCredentail(credential)
+              .then(result => {
+                console.log("Successfully", result);
+              })
+              .catch(error => {
+                console.log("Failed", error);
+              });
+          });
         }
-      },
-      function(error) {
-        alert("Login fail with error: " + error);
-      }
-    );
+      })
+      .catch(err => {
+        console.log("failed", err);
+      });
+  };
+  googleSignIn = () => {
+    GoogleSignin.configure().then(() => {
+      GoogleSignin.signIn()
+        .then(data => {
+          // create a new firebase credential with the token
+          const credential = firebase.auth.GoogleAuthProvider.credential(
+            data.idToken,
+            data.accessToken
+          );
+          // login with credential
+          return firebase
+            .auth()
+            .signInWithCredential(credential)
+            .then(result => {
+              console.log("Successfully", result);
+            })
+            .catch(error => {
+              console.log("Failed", error);
+            });
+        })
+        .then(currentUser => {
+          console.info(JSON.stringify(currentUser.toJSON()));
+        })
+        .catch(error => {
+          console.error(`Login fail with error: ${error}`);
+        });
+    });
   };
 
   render() {
@@ -124,7 +164,7 @@ export default class SkillSignIn extends Component {
           <View style={styles.socailIcons}>
             <SocialIcon type="twitter" />
             <SocialIcon type="facebook" onPress={this.facebookSignIn} />
-            <SocialIcon type="google" />
+            <SocialIcon type="google" onPress={this.googleSignIn} />
           </View>
         </Content>
       </Container>
