@@ -109,6 +109,7 @@ export default class SkillHome extends Component {
           <Form>
             <Item floatingLabel>
               <Label>Service/Name</Label>
+
               <Icon name="ios-home-outline" />
               <Input
                 onChangeText={serviceName => (this.serviceName = serviceName)}
@@ -119,12 +120,7 @@ export default class SkillHome extends Component {
               <Icon active name="ios-pin-outline" />
               <Input onChangeText={loaction => (this.location = location)} />
             </Item>
-            <Button
-              block
-              large
-              style={styles.skillButtonBg}
-              onPress={this.signIn}
-            >
+            <Button block large style={styles.skillButtonBg} onPress="">
               <Text>Search</Text>
             </Button>
           </Form>
@@ -155,24 +151,35 @@ export default class SkillHome extends Component {
             <Row>
               <ScrollView
                 horizontal
-                contentContainerStyle={{ width: 1000, height: 250 }}
+                contentContainerStyle={{ width: 1200, height: 250 }}
                 style={styles.scrollView}
               >
                 {this.state.suggestedBadge.map((item, index) => (
                   <Col style={styles.badges}>
                     <View key={index} style={styles.badgeContent}>
                       <Image style={styles.badgeImage} source={item.images} />
-                      <Text>{item.name}</Text>
-                      <Text>{item.service}</Text>
-                      <Text>{item.badge}</Text>
-                      <Text>{item.addBadge}</Text>
-                      <Text>{item.city}</Text>
+                      <Text style={styles.badgeName}>{item.name}</Text>
+                      <Text style={styles.badgeName}>{item.service}</Text>
+                      <View style={styles.addBadges}>
+                        <Text style={styles.badgeName}>{item.badge}</Text>
+                        <Text style={styles.badgeName}> +{item.addBadge}</Text>
+                      </View>
+                      <Text>____</Text>
+                      <Text style={styles.badgeName}>{item.city}</Text>
                     </View>
                   </Col>
                 ))}
+                <Col style={styles.badges}>
+                  <View style={styles.badgeContent}>
+                    <View style={styles.showMoreBadge}>
+                      <Text>Show more</Text>
+                    </View>
+                  </View>
+                </Col>
               </ScrollView>
             </Row>
           </Grid>
+          <Text style={styles.version}>Version 0.01</Text>
         </Content>
       </Container>
     );
@@ -188,8 +195,11 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     marginVertical: 20
   },
+  formLabel: {
+    marginVertical: 5
+  },
   badges: {
-    //backgroundColor: "white",
+    backgroundColor: "#dedede",
     marginHorizontal: 5
   },
   badgeContent: {
@@ -201,7 +211,21 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     width: 100
   },
+  badgeName: {
+    marginTop: 3
+  },
+  addBadges: {
+    flexDirection: "row"
+  },
+  showMoreBadge: {
+    marginVertical: 90,
+    textAlign: "center"
+  },
   scrollView: {
     marginVertical: 10
+  },
+  version: {
+    textAlign: "center",
+    marginBottom: 20
   }
 });

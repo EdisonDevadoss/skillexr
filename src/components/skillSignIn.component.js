@@ -14,23 +14,26 @@ import {
   Input,
   Toast
 } from "native-base";
-import { Image, StyleSheet, View } from "react-native";
+import { Image, StyleSheet, View, NativeModules } from "react-native";
 import * as firebase from "firebase";
 
 import { SocialIcon } from "react-native-elements";
 import { GoogleSignin } from "react-native-google-signin";
+
 import FBSDK, { LoginManager, AccessToken } from "react-native-fbsdk";
 
+// const rootRef = firebase.database().ref();
+// const dataRef = rootRef.child("/Developer");
 export default class SkillSignIn extends Component {
   constructor(props) {
     super(props);
+
     this.state = {
       email: "",
       password: ""
     };
   }
-  // email = "";
-  // password = "";
+
   signIn = () => {
     firebase
       .auth()
@@ -57,36 +60,36 @@ export default class SkillSignIn extends Component {
       });
   };
   facebookSignIn = () => {
-    LoginManager.logInWithReadPermissions(["public_profile"])
+    LoginManager.logInWithReadPermissions(["public_profile", "email"])
       .then(result => {
         if (result.isCancelled) {
           console.log("Login was cancelled");
-        } else {
-          console.log(
-            "Login was success" + result.grantedPermissions.toString()
-          );
-          AccessToken.getCurrentAccessToken().then(accessTokenData => {
-            const credential = firebase.auth
-              .FacebookAuthProvider()
-              .credential(accessTokenData.accessToken);
-            firebase
-              .auth()
-              .signInWithCredentail(credential)
-              .then(result => {
-                console.log("Successfully", result);
-              })
-              .catch(error => {
-                console.log("Failed", error);
-              });
-          });
         }
+
+        return AccessToken.getCurrentAccessToken();
+      })
+      .then(data => {
+        const credential = firebase.auth.FacebookAuthProvider.credential(
+          data.accessToken
+        );
+        return firebase.auth().signInWithCredential(credential);
+        console.log("firebase success");
+      })
+      .then(currentUser => {
+        console.log(
+          `Facebook login with user: ${JSON.stringify(currentUser.toJSON())}`
+        );
       })
       .catch(err => {
         console.log("failed", err);
       });
   };
   googleSignIn = () => {
-    GoogleSignin.configure().then(() => {
+    GoogleSignin.configure({
+      webClientId:
+        "241042837277-r1ku73b73cq9d03n0q0j2iubinsvvp7n.apps.googleusercontent.com",
+      offline: true
+    }).then(() => {
       GoogleSignin.signIn()
         .then(data => {
           // create a new firebase credential with the token
@@ -106,13 +109,14 @@ export default class SkillSignIn extends Component {
             });
         })
         .then(currentUser => {
-          console.info(JSON.stringify(currentUser.toJSON()));
+          console.log(JSON.stringify(currentUser.toJSON()));
         })
         .catch(error => {
-          console.error(`Login fail with error: ${error}`);
+          console.log(`Login fail with error: ${error}`);
         });
     });
   };
+  twitterSignin = () => {};
 
   render() {
     const skillHeader = require("../images/Header-logo.png");
@@ -161,10 +165,20 @@ export default class SkillSignIn extends Component {
               <Text>Signin</Text>
             </Button>
           </Form>
+          <Text style={{ textAlign: "center", marginVertical: 10 }}>
+            ─── OR ───
+          </Text>
           <View style={styles.socailIcons}>
-            <SocialIcon type="twitter" />
+            <SocialIcon type="twitter" onPress={this.twitterSignin} />
             <SocialIcon type="facebook" onPress={this.facebookSignIn} />
             <SocialIcon type="google" onPress={this.googleSignIn} />
+          </View>
+          <View style={styles.forgetPass}>
+            <Text style={styles.pass}>Forget Password?</Text>
+            <View style={styles.report}>
+              <Text>Report</Text>
+              <Text style={styles.pass}>Signin Problem</Text>
+            </View>
           </View>
         </Content>
       </Container>
@@ -186,5 +200,16 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flexDirection: "row",
     justifyContent: "center"
+  },
+  forgetPass: {
+    alignItems: "center",
+    marginTop: 10
+  },
+  pass: {
+    textDecorationLine: "underline"
+  },
+  report: {
+    marginTop: 5,
+    flexDirection: "row"
   }
 });

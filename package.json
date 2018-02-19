@@ -15,6 +15,7 @@
     "react-native-fbsdk": "^0.7.0",
     "react-native-google-signin": "^0.12.0",
     "react-native-image-header": "^1.0.1",
+    "react-native-twitter-signin": "^1.0.2",
     "react-navigation": "^1.0.0-beta.27"
   },
   "devDependencies": {
